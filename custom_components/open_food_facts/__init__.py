@@ -13,7 +13,7 @@ from homeassistant.const import Platform
 from openfoodfacts import API
 
 from .const import DEFAULT_USER_AGENT, DOMAIN
-from .service_actions import async_setup_services
+from .services import async_setup_services
 
 if TYPE_CHECKING:
     from homeassistant.core import HomeAssistant
