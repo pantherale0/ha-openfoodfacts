@@ -5,34 +5,22 @@ For more details about this integration, please refer to:
 https://github.com/pantherale0/ha-openfoodfacts
 """
 
-from datetime import timedelta
 from typing import TYPE_CHECKING
 
-from homeassistant.const import CONF_PASSWORD, CONF_USERNAME, Platform
-from homeassistant.helpers.aiohttp_client import async_get_clientsession
 import homeassistant.helpers.config_validation as cv
-from homeassistant.loader import async_get_loaded_integration
+from homeassistant.config_entries import ConfigEntry
+from homeassistant.const import Platform
+from openfoodfacts import API
 
-from .api import OpenFoodFactsApiClient
-from .const import CONF_UPDATE_INTERVAL_HOURS, DEFAULT_UPDATE_INTERVAL_HOURS, DOMAIN, LOGGER
-from .coordinator import OpenFoodFactsDataUpdateCoordinator
-from .data import OpenFoodFactsData
+from .const import DEFAULT_USER_AGENT, DOMAIN
 from .service_actions import async_setup_services
 
 if TYPE_CHECKING:
     from homeassistant.core import HomeAssistant
 
-    from .data import OpenFoodFactsConfigEntry
+type OpenFoodFactsConfigEntry = ConfigEntry[API]
 
-PLATFORMS: list[Platform] = [
-    Platform.BINARY_SENSOR,
-    Platform.BUTTON,
-    Platform.FAN,
-    Platform.NUMBER,
-    Platform.SELECT,
-    Platform.SENSOR,
-    Platform.SWITCH,
-]
+PLATFORMS: list[Platform] = []
 
 CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
 
@@ -57,36 +45,11 @@ async def async_setup_entry(
     Set up a config entry.
 
     Returns:
-        True once the coordinator has data and every platform is forwarded.
+        True once the API client is initialized and attached to runtime_data.
 
     """
-    client = OpenFoodFactsApiClient(
-        username=entry.data[CONF_USERNAME],
-        password=entry.data[CONF_PASSWORD],
-        session=async_get_clientsession(hass),
-    )
-
-    interval_hours = float(entry.options.get(CONF_UPDATE_INTERVAL_HOURS, DEFAULT_UPDATE_INTERVAL_HOURS))
-    coordinator = OpenFoodFactsDataUpdateCoordinator(
-        hass=hass,
-        logger=LOGGER,
-        name=DOMAIN,
-        config_entry=entry,
-        update_interval=timedelta(hours=interval_hours),
-        always_update=False,
-    )
-
-    entry.runtime_data = OpenFoodFactsData(
-        client=client,
-        integration=async_get_loaded_integration(hass, entry.domain),
-        coordinator=coordinator,
-    )
-
-    await coordinator.async_config_entry_first_refresh()
-
-    await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
-    entry.async_on_unload(entry.add_update_listener(async_reload_entry))
-
+    api = API(user_agent=DEFAULT_USER_AGENT)
+    entry.runtime_data = api
     return True
 
 
@@ -98,15 +61,7 @@ async def async_unload_entry(
     Unload a config entry.
 
     Returns:
-        True if every platform unloaded cleanly.
+        True once unloaded.
 
     """
-    return await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
-
-
-async def async_reload_entry(
-    hass: HomeAssistant,
-    entry: OpenFoodFactsConfigEntry,
-) -> None:
-    """Reload the config entry after its data or options changed."""
-    await hass.config_entries.async_reload(entry.entry_id)
+    return True

@@ -2,15 +2,64 @@
 # The names and descriptions here are only the fallback shown when a translation is
 # missing; users see services.<action>.* from translations/en.json.
 
-refresh_data:
-  name: Refresh data
-  description: Fetch the current device state immediately instead of waiting for the next poll.
+get_product:
+  name: Get product
+  description: Retrieve product details from Open Food Facts by barcode.
   fields:
-    config_entry_id:
-      name: Integration entry
-      description: The configuration entry to refresh.
+    barcode:
+      name: Barcode
+      description: The barcode (EAN, UPC) of the product.
       required: true
-      example: 01JG3T2Q6Z9K4V8P0N5R7X2M1A
+      example: "3017620422003"
       selector:
-        config_entry:
-          integration: open_food_facts
+        text:
+    fields:
+      name: Fields
+      description: Optional list of product fields to return.
+      required: false
+      example:
+        - "product_name"
+        - "nutriscore_grade"
+        - "ecoscore_grade"
+      selector:
+        object:
+
+search_products:
+  name: Search products
+  description: Search for food products on Open Food Facts by keywords.
+  fields:
+    query:
+      name: Query
+      description: Text query to search for products.
+      required: true
+      example: "mineral water"
+      selector:
+        text:
+    page:
+      name: Page
+      description: Page number of search results to fetch.
+      required: false
+      default: 1
+      example: 1
+      selector:
+        number:
+          min: 1
+          mode: box
+    page_size:
+      name: Page size
+      description: Number of products to return per page.
+      required: false
+      default: 20
+      example: 20
+      selector:
+        number:
+          min: 1
+          max: 100
+          mode: box
+    sort_by:
+      name: Sort by
+      description: Sort key for the results (e.g. product_name, created_t).
+      required: false
+      example: "product_name"
+      selector:
+        text:

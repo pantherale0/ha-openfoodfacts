@@ -6,9 +6,12 @@
   ],
   "config_flow": true,
   "documentation": "https://github.com/pantherale0/ha-openfoodfacts",
-  "integration_type": "hub",
+  "integration_type": "service",
   "iot_class": "cloud_polling",
   "issue_tracker": "https://github.com/pantherale0/ha-openfoodfacts/issues",
-  "requirements": [],
+  "requirements": [
+    "openfoodfacts==5.3.0"
+  ],
+  "single_config_entry": true,
   "version": "0.1.0"
 }
