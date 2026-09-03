@@ -155,3 +155,4 @@ async def async_setup_services(hass: HomeAssistant) -> None:
             schema=SEARCH_PRODUCTS_SCHEMA,
             supports_response=SupportsResponse.ONLY,
         )
+
